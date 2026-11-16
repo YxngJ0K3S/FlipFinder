@@ -1,0 +1,114 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FlipFinder Scanner</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0d12;color:#f4f6fb;font-family:Arial,sans-serif;padding:22px}
+h1{color:#a78bfa}
+p{color:#929bad;line-height:1.5}
+.card{background:#131722;border:1px solid #252d3d;border-radius:15px;padding:18px;margin:16px 0}
+label{display:block;margin:14px 0 7px;color:#aab3c3;font-size:14px}
+input,select{width:100%;padding:13px;border-radius:9px;border:1px solid #343d50;background:#0b0d12;color:white;font-size:16px}
+button{width:100%;padding:14px;border:0;border-radius:10px;background:#a78bfa;color:#100d1b;font-weight:bold;font-size:16px;margin-top:15px}
+.result{margin-top:15px;padding:14px;background:#0b0d12;border-radius:10px}
+.green{color:#6ee7b7}
+a{color:#a78bfa}
+</style>
+</head>
+<body>
+
+<h1>FLIPFINDER</h1>
+<p>PRODUCT SCANNER · EBAY UK</p>
+
+<div class="card">
+<h2>Find profitable products</h2>
+
+<label>Product or keyword</label>
+<input id="product" placeholder="e.g. Nike Air Max 95">
+
+<label>Maximum buying price (£)</label>
+<input id="budget" type="number" value="100">
+
+<label>Expected selling price (£)</label>
+<input id="selling" type="number" value="150">
+
+<label>eBay fees (%)</label>
+<input id="fees" type="number" value="13.5" step="0.1">
+
+<label>Postage (£)</label>
+<input id="postage" type="number" value="4">
+
+<label>Other costs (£)</label>
+<input id="other" type="number" value="0">
+
+<label>Minimum desired profit (£)</label>
+<input id="target" type="number" value="15">
+
+<button onclick="calculate()">Calculate opportunity</button>
+<div id="result" class="result">
+Enter your product details to begin.
+</div>
+</div>
+
+<div class="card">
+<h2>eBay Product Scanner</h2>
+<p>Search active listings and compare them with sold listings.</p>
+
+<button onclick="searchEbay()">Search active listings</button>
+<button onclick="searchSold()">Compare sold listings</button>
+<div id="status"></div>
+</div>
+
+<div class="card">
+<h2>How to find a flip</h2>
+<p>1. Search for a product on eBay.</p>
+<p>2. Compare active listings with recently sold items.</p>
+<p>3. Check condition, model and authenticity.</p>
+<p>4. Calculate all costs before purchasing.</p>
+<p>5. Only consider deals with a realistic profit.</p>
+</div>
+
+<script>
+function val(id){
+return Math.max(0,Number(document.getElementById(id).value)||0);
+}
+
+function calculate(){
+const buy=val('budget');
+const sell=val('selling');
+const fee=val('fees')/100;
+const postage=val('postage');
+const other=val('other');
+const target=val('target');
+
+const profit=sell-(sell*fee)-postage-other-buy;
+const maxBuy=sell-(sell*fee)-postage-other-target;
+const margin=sell>0?(profit/sell)*100:0;
+
+document.getElementById('result').innerHTML=`
+<h3>Estimated net profit</h3>
+<h1 class="green">£${profit.toFixed(2)}</h1>
+<p>Profit margin: ${margin.toFixed(1)}%</p>
+<p>Maximum buying price for your target profit:
+<strong>£${Math.max(0,maxBuy).toFixed(2)}</strong></p>
+<p>${profit>=target?'Potential opportunity: meets your target.':'Does not meet your target profit.'}</p>`;
+}
+
+function searchEbay(){
+const q=document.getElementById('product').value.trim();
+if(!q){alert('Enter a product first');return;}
+window.open('https://www.ebay.co.uk/sch/i.html?_nkw='+encodeURIComponent(q),'_blank');
+}
+
+function searchSold(){
+const q=document.getElementById('product').value.trim();
+if(!q){alert('Enter a product first');return;}
+window.open('https://www.ebay.co.uk/sch/i.html?_nkw='+encodeURIComponent(q)+'&LH_Sold=1&LH_Complete=1','_blank');
+}
+</script>
+</body>
+</html>
