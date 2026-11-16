@@ -1,0 +1,345 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlipFinder Smart Finder</title>
+<style>
+:root {
+  --bg:#090a0f;
+  --panel:#141722;
+  --border:#252b3a;
+  --purple:#a78bfa;
+  --green:#50d6a1;
+  --muted:#929bad;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:#f5f5fa;
+  font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;
+  padding:24px 16px 60px;
+}
+header{margin-bottom:25px}
+.brand{font-size:25px;font-weight:900;color:var(--purple)}
+.subtitle{color:var(--muted);margin-top:10px}
+h1{font-size:29px;line-height:1.2}
+h1 span{color:var(--purple)}
+h2{font-size:20px}
+p{color:var(--muted);line-height:1.6}
+.card{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:17px;padding:19px;margin:17px 0;
+}
+label{display:block;color:#b6bdcc;margin:15px 0 7px}
+input,select{
+  width:100%;padding:14px;border-radius:10px;
+  border:1px solid #343b4d;background:#090b11;
+  color:white;font-size:16px;
+}
+button{
+  border:0;border-radius:11px;padding:14px;
+  background:var(--purple);color:#100c20;
+  font-size:15px;font-weight:800;cursor:pointer;
+}
+.primary{width:100%;margin-top:19px}
+.secondary{
+  background:#22283a;color:white;
+  border:1px solid var(--border);
+}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:#0c0f17;padding:13px;border-radius:12px}
+.stat small{color:var(--muted)}
+.stat strong{display:block;font-size:21px;margin-top:7px}
+.green{color:var(--green)}
+.result{
+  background:#090b11;padding:17px;border-radius:12px;
+  margin-top:17px;display:none;
+}
+.score{font-size:37px;font-weight:900;color:var(--green)}
+.listing{
+  padding:14px 0;border-bottom:1px solid var(--border);
+}
+.listing:last-child{border:0}
+.listing strong{display:block;margin-bottom:7px}
+.pill{
+  display:inline-block;background:#29213f;
+  color:var(--purple);padding:5px 9px;
+  border-radius:20px;font-size:12px;
+}
+footer{text-align:center;color:var(--muted);font-size:12px;margin-top:30px}
+a{color:var(--purple)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">FLIPFINDER</div>
+  <div class="subtitle">SMART PRODUCT DISCOVERY · UK</div>
+  <h1>Find the flip.<br><span>Know the profit.</span></h1>
+  <p>Discover resale opportunities across multiple categories and calculate the numbers before buying.</p>
+</header>
+
+<section class="card">
+  <h2>Product discovery</h2>
+
+  <label>Product or keyword</label>
+  <input id="product" placeholder="e.g. Pokémon Elite Trainer Box">
+
+  <label>Product category</label>
+  <select id="category">
+    <option>All categories</option>
+    <option>Electronics</option>
+    <option>Pokémon and trading cards</option>
+    <option>LEGO and collectibles</option>
+    <option>Trainers and footwear</option>
+    <option>Clothing and fashion</option>
+    <option>Gaming</option>
+    <option>Home and lifestyle</option>
+    <option>Other</option>
+  </select>
+
+  <label>Maximum buying budget (£)</label>
+  <input id="budget" type="number" value="50" min="0">
+
+  <label>Expected selling price (£)</label>
+  <input id="selling" type="number" value="100" min="0">
+
+  <label>Buying price (£)</label>
+  <input id="buying" type="number" value="40" min="0">
+
+  <label>eBay fees (%)</label>
+  <input id="fees" type="number" value="13.5" min="0" max="100" step="0.1">
+
+  <label>Postage (£)</label>
+  <input id="postage" type="number" value="4" min="0">
+
+  <label>Other costs (£)</label>
+  <input id="other" type="number" value="0" min="0">
+
+  <label>Minimum desired profit (£)</label>
+  <input id="target" type="number" value="15" min="0">
+
+  <button class="primary" onclick="analyse()">Analyse opportunity</button>
+
+  <div class="result" id="result">
+    <h3>Deal analysis</h3>
+    <div class="score" id="score">0/100</div>
+    <p id="verdict"></p>
+    <div class="stats">
+      <div class="stat">
+        <small>Estimated net profit</small>
+        <strong class="green" id="profit">£0.00</strong>
+      </div>
+      <div class="stat">
+        <small>Profit margin</small>
+        <strong id="margin">0%</strong>
+      </div>
+      <div class="stat">
+        <small>Return on investment</small>
+        <strong id="roi">0%</strong>
+      </div>
+      <div class="stat">
+        <small>Maximum buying price</small>
+        <strong id="maxbuy">£0.00</strong>
+      </div>
+    </div>
+    <p id="details"></p>
+    <button class="primary" onclick="saveDeal()">Save opportunity</button>
+  </div>
+</section>
+
+<section class="card">
+  <h2>eBay marketplace research</h2>
+  <p>Search active listings and compare them against completed sales to research market prices.</p>
+
+  <div class="actions">
+    <button onclick="searchEbay('active')">Active listings</button>
+    <button onclick="searchEbay('sold')">Sold listings</button>
+  </div>
+
+  <p style="font-size:12px">These buttons open eBay UK searches. Prices must be checked against the actual listings; this version does not automatically retrieve eBay data.</p>
+</section>
+
+<section class="card">
+  <h2>Saved opportunities</h2>
+  <div class="stats">
+    <div class="stat">
+      <small>Tracked products</small>
+      <strong id="count">0</strong>
+    </div>
+    <div class="stat">
+      <small>Potential profit</small>
+      <strong class="green" id="total">£0.00</strong>
+    </div>
+  </div>
+  <div id="saved"></div>
+  <button class="secondary primary" onclick="clearDeals()">Clear watchlist</button>
+</section>
+
+<footer>
+  FLIPFINDER · Independent resale research tool · Not affiliated with eBay.
+</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const money = n => "£" + n.toFixed(2);
+
+let deals = [];
+try {
+  deals = JSON.parse(localStorage.getItem("ff_smart_deals") || "[]");
+  if (!Array.isArray(deals)) deals = [];
+} catch(e) {
+  deals = [];
+}
+
+function number(id) {
+  return Math.max(0, Number($(id).value) || 0);
+}
+
+function analyse() {
+  const name = $("product").value.trim();
+  const buy = number("buying");
+  const budget = number("budget");
+  const sell = number("selling");
+  const fee = number("fees") / 100;
+  const postage = number("postage");
+  const other = number("other");
+  const target = number("target");
+
+  if (!name) {
+    alert("Enter a product name first.");
+    return;
+  }
+
+  if (sell <= 0 || buy <= 0 || buy > budget || fee >= 1) {
+    alert("Check your selling price, buying price, budget and fees.");
+    return;
+  }
+
+  const profit = sell - sell * fee - buy - postage - other;
+  const margin = profit / sell * 100;
+  const roi = profit / (buy + postage + other) * 100;
+  const maxbuy = sell * (1 - fee) - postage - other - target;
+
+  let score = 0;
+  if (profit > 0) score += 30;
+  if (profit >= target) score += 25;
+  if (margin >= 20) score += 20;
+  else if (margin >= 10) score += 10;
+  if (roi >= 30) score += 15;
+  else if (roi >= 15) score += 8;
+  if (buy <= budget) score += 10;
+
+  score = Math.min(100, score);
+
+  let verdict = score >= 75
+    ? "Strong potential — verify sold prices and condition."
+    : score >= 50
+    ? "Worth researching further before buying."
+    : "Weak opportunity — consider negotiating a lower price.";
+
+  $("score").textContent = score + "/100";
+  $("profit").textContent = money(profit);
+  $("profit").style.color = profit >= target ? "#50d6a1" : "#ff8585";
+  $("margin").textContent = margin.toFixed(1) + "%";
+  $("roi").textContent = roi.toFixed(1) + "%";
+  $("maxbuy").textContent = money(Math.max(0,maxbuy));
+  $("verdict").textContent = verdict;
+  $("details").textContent =
+    "Estimated selling fees: " + money(sell * fee) +
+    ". Total costs including purchase: " +
+    money(buy + sell * fee + postage + other) + ".";
+
+  $("result").style.display = "block";
+  window.currentDeal = {
+    name,
+    category:$("category").value,
+    buy,sell,profit,margin,roi,score,
+    date:new Date().toLocaleDateString("en-GB")
+  };
+}
+
+function searchEbay(mode) {
+  const product = $("product").value.trim();
+  if (!product) {
+    alert("Enter a product name first.");
+    return;
+  }
+
+  const base = "https://www.ebay.co.uk/sch/i.html?_nkw=" +
+    encodeURIComponent(product);
+
+  const url = mode === "sold"
+    ? base + "&LH_Sold=1&LH_Complete=1"
+    : base;
+
+  window.open(url,"_blank");
+}
+
+function saveDeal() {
+  const d = window.currentDeal;
+  if (!d) return;
+
+  if (deals.some(x => x.name.toLowerCase() === d.name.toLowerCase())) {
+    alert("This product is already saved.");
+    return;
+  }
+
+  deals.unshift({...d,id:Date.now(),status:"Watching"});
+  persist();
+  alert("Opportunity saved!");
+}
+
+function persist() {
+  try {
+    localStorage.setItem("ff_smart_deals",JSON.stringify(deals));
+  } catch(e) {
+    alert("Unable to save. Check your browser storage.");
+  }
+  render();
+}
+
+function removeDeal(id) {
+  deals = deals.filter(x => x.id !== id);
+  persist();
+}
+
+function clearDeals() {
+  if (!confirm("Delete all saved opportunities?")) return;
+  deals = [];
+  persist();
+}
+
+function render() {
+  $("count").textContent = deals.length;
+  $("total").textContent = money(
+    deals.reduce((sum,d) => sum + d.profit,0)
+  );
+
+  $("saved").innerHTML = deals.length
+    ? deals.map(d => `
+      <div class="listing">
+        <strong>${escapeHTML(d.name)}</strong>
+        <span class="pill">${escapeHTML(d.category)}</span>
+        <p>Buy ${money(d.buy)} · Sell ${money(d.sell)}</p>
+        <p class="green">Potential profit: ${money(d.profit)}</p>
+        <p>Deal score: ${d.score}/100 · ${d.date}</p>
+        <button class="secondary" onclick="removeDeal(${d.id})">Delete</button>
+      </div>
+    `).join("")
+    : '<p>No opportunities saved yet. Analyse a product to begin.</p>';
+}
+
+function escapeHTML(s) {
+  return String(s).replace(/[&<>"']/g,c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",
+    '"':"&quot;","'":"&#39;"
+  })[c]);
+}
+
+render();
+</script>
+</body>
+</html>
